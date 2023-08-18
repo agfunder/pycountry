@@ -55,18 +55,19 @@ class ExistingCountries(pycountry.db.Database):
         except LookupError:
             pass
 
-        # Prio 2: exact matches on subdivision names
-        for candidate in subdivisions:
-            for v in candidate._fields.values():
-                if v is None:
-                    continue
-                v = remove_accents(v.lower())
-                # Some names include alternative versions which we want to
-                # match exactly.
-                for v in v.split(";"):
-                    if v == query:
-                        add_result(candidate.country, 49)
-                        break
+        if 0: # Do not search subdivisions
+            # Prio 2: exact matches on subdivision names
+            for candidate in subdivisions:
+                for v in candidate._fields.values():
+                    if v is None:
+                        continue
+                    v = remove_accents(v.lower())
+                    # Some names include alternative versions which we want to
+                    # match exactly.
+                    for v in v.split(";"):
+                        if v == query:
+                            add_result(candidate.country, 49)
+                            break
 
         # Prio 3: partial matches on country names
         for candidate in self:
@@ -87,14 +88,15 @@ class ExistingCountries(pycountry.db.Database):
                     add_result(candidate, max([5, 30 - (2 * v.find(query))]))
                     break
 
-        # Prio 4: partial matches on subdivision names
-        for candidate in subdivisions:
-            v = candidate._fields.get("name")
-            if v is None:
-                continue
-            v = remove_accents(v.lower())
-            if query in v:
-                add_result(candidate.country, max([1, 5 - v.find(query)]))
+        if 0: # Do not search subdivisions
+            # Prio 4: partial matches on subdivision names
+            for candidate in subdivisions:
+                v = candidate._fields.get("name")
+                if v is None:
+                    continue
+                v = remove_accents(v.lower())
+                if query in v:
+                    add_result(candidate.country, max([1, 5 - v.find(query)]))
 
         if not results:
             raise LookupError(query)
